@@ -26,3 +26,7 @@ npx serve .
 ```
 
 All pages send `noindex` so previews stay out of search results.
+
+## Fonts
+
+Both concepts use **Season Collection (TRIAL)**, a single variable font in `fonts/`, loaded by `fonts/season.css`. Pick the style with the `SERF` axis: Sans is the default (`0`), Mix is `font-variation-settings: "SERF" 50`, and Serif is `100`. Weight runs 300 to 900. Replace the trial file with the licensed one before launch.

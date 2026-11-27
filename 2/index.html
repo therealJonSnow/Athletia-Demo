@@ -4,18 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Athletia Core — Intro</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=Newsreader:opsz,wght@6..72,300&display=swap" rel="stylesheet">
+<link rel="preload" href="/fonts/SeasonCollectionVF-TRIAL.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/season.css">
 <style>
   :root {
     --bg: #080e17;
     --pink: #f22857;
     --pink-text: #ff1b50;
     --pink-20: rgba(242, 40, 87, 0.2);
-    /* Season fonts are used if installed locally; Google fallbacks otherwise */
-    --font-mix: "Season Mix TRIAL", "Season Mix", "Newsreader", Georgia, serif;
-    --font-sans: "Season Sans TRIAL", "Season Sans", "Hanken Grotesk", system-ui, sans-serif;
+    /* Season Collection (trial): Sans for body, Mix (SERF 50) for the headline. See /fonts/season.css. */
+    --font-mix: "Season", Georgia, serif;
+    --font-sans: "Season", system-ui, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
@@ -58,6 +57,7 @@
   h1 {
     width: max-content;
     font-family: var(--font-mix);
+    font-variation-settings: "SERF" 50;
     font-weight: 300;
     font-size: 88px;
     line-height: 0.96;

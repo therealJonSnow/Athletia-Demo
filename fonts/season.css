@@ -1,0 +1,16 @@
+/*
+  Season Collection (TRIAL) variable font: one file, three styles chosen by the "SERF" (Serif) axis.
+    Season Sans  → SERF 0   (the default, nothing to set)
+    Season Mix   → SERF 50  (set font-variation-settings: "SERF" 50 on the element)
+    Season Serif → SERF 100
+  Weight runs 300–900 through font-weight as normal.
+  Trial licence: swap in the licensed file before anything goes public.
+*/
+@font-face {
+  font-family: "Season";
+  src: url("/fonts/SeasonCollectionVF-TRIAL.woff2") format("woff2-variations"),
+       url("/fonts/SeasonCollectionVF-TRIAL.woff2") format("woff2");
+  font-weight: 300 900;
+  font-style: normal;
+  font-display: swap;
+}

@@ -4,9 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Athletia Core</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Bitter:wght@300&display=swap" rel="stylesheet">
+<link rel="preload" href="/fonts/SeasonCollectionVF-TRIAL.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/season.css">
 <script>
   // Run the intro only when motion is allowed; otherwise the page shows its final state.
   if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('intro');
@@ -19,9 +18,9 @@
     --pink-hot: #FF1B50;
     --pink-20: rgba(242, 40, 87, 0.20);
     --pink-30: rgba(242, 40, 87, 0.30);
-    /* Season Sans / Season Mix are trial fonts; these are the web stand-ins until licensed files are added. */
-    --font-body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
-    --font-display: "Bitter", Georgia, "Times New Roman", serif;
+    /* Season Collection (trial): Sans for body, Mix (SERF 50) for the headline. See /fonts/season.css. */
+    --font-body: "Season", "Helvetica Neue", Arial, sans-serif;
+    --font-display: "Season", Georgia, "Times New Roman", serif;
     --edge: clamp(16px, 2.8vw, 40px);
     color-scheme: dark;
   }
@@ -91,6 +90,7 @@
     margin: 0;
     color: var(--navy);
     font-family: var(--font-display);
+    font-variation-settings: "SERF" 50;
     font-weight: 300;
     font-size: 56px;
     line-height: 1;
