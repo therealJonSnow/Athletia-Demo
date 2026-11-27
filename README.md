@@ -7,7 +7,7 @@ Single-page site concepts for the Athletia Core client preview. Plain static HTM
 | `/`   | Redirects to `/1/` |
 | `/1/` | Concept 1 (navy stage, pink band) |
 | `/2/` | Concept 2 (growing signet background, white headline) |
-| `/3/` | Coming soon |
+| `/3/` | Concept 3 (photo carousel with detection frames) |
 
 ## Concept switcher
 
@@ -38,4 +38,4 @@ python3 -m http.server 8123 &
 node scripts/export-intros.js
 ```
 
-The script renders each concept's intro frame by frame at 60fps and saves it as `exports/concept-<n>-1920x1080.mp4`. Exports are gitignored. Pass a concept number to export just that one, or `--w=1080 --h=1920` for portrait. The script header lists the other options. It needs Playwright and ffmpeg.
+The script renders each concept frame by frame at 60fps on a fake clock (so intros and timer-driven loops both export smoothly) and saves it as `exports/concept-<n>-<w>x<h>.mp4`. Concept 3 exports one full carousel cycle (19.5s). Exports are gitignored. Pass a concept number to export just that one, or `--w=1080 --h=1920` for portrait. The script header lists the other options. It needs Playwright and ffmpeg.

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Athletia Core — Hero concept</title>
+<link rel="preload" href="/fonts/SeasonCollectionVF-TRIAL.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/fonts/season.css">
+<style>
+  :root {
+    --ink: #080e17;
+    --muted: rgba(255,255,255,0.56);
+    /* Season Collection (trial): Sans for body, Mix (SERF 50) for the headline. See /fonts/season.css. */
+    --font-display: "Season", Georgia, serif;
+    --font-sans: "Season", system-ui, sans-serif;
+    --pad: clamp(24px, 4.45vw, 64px);
+
+    /* animation timings (ms) — tweak here */
+    --t-pill-in: 450ms;
+    --t-expand: 1000ms;
+    --t-collapse: 650ms;
+    --t-photo: 1200ms;
+    --ease-expand: cubic-bezier(.77, 0, .18, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--ink); color: #fff; }
+  body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; overflow: hidden; }
+
+  .hero { position: relative; width: 100%; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; }
+
+  /* ---------- Animated scene (photo + detection frame), 1440×900 design space scaled to cover ---------- */
+  .scene {
+    position: absolute; left: 0; top: 0; width: 1440px; height: 900px;
+    transform-origin: 0 0;
+  }
+  .scene--top { pointer-events: none; z-index: 1; }
+  .photo {
+    position: absolute; opacity: 0;
+    transition: opacity var(--t-photo) ease, transform 8s linear;
+    transform: scale(1.04);
+    will-change: opacity, transform;
+  }
+  .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .photo.is-active { opacity: 1; transform: scale(1); }
+
+  /* dark layer that every photo sits behind (detection box stays above it) */
+  .tint { position: absolute; inset: 0; background: rgba(8,14,23,.45); pointer-events: none; }
+
+  .detect {
+    --c: #fbd533;
+    --c-line: rgba(251,213,51,.6);
+    --c-edge: #9a8528;
+    position: absolute;
+    border: 1px solid var(--c-line);
+    opacity: 0;
+    transition:
+      left var(--t-expand) var(--ease-expand),
+      top var(--t-expand) var(--ease-expand),
+      width var(--t-expand) var(--ease-expand),
+      height var(--t-expand) var(--ease-expand),
+      opacity 300ms ease;
+  }
+  .detect.no-anim { transition: none !important; }
+  .detect.no-anim .pill { transition: none !important; }
+  .detect.is-collapsing {
+    transition-duration: var(--t-collapse), var(--t-collapse), var(--t-collapse), var(--t-collapse), 300ms;
+  }
+  .detect.is-visible { opacity: 1; }
+
+  .tick { position: absolute; width: 12px; height: 12px; color: var(--c); display: block; }
+  .tick--tl { left: 0; top: 0; }
+  .tick--br { right: 0; bottom: 0; transform: rotate(180deg); }
+
+  .pill {
+    position: absolute;
+    display: flex; align-items: center;
+    padding: 12px 20px; border-radius: 10px;
+    background: var(--c); border: 1px solid var(--c-edge);
+    color: var(--ink); font-family: var(--font-sans); font-weight: 500; font-size: 16px; line-height: 20px;
+    white-space: nowrap;
+    opacity: 0; transform: scale(.92);
+    transition: opacity var(--t-pill-in) ease, transform var(--t-pill-in) cubic-bezier(.2,.9,.3,1.2);
+  }
+  .detect[data-anchor="tl"] .pill { left: 9px; top: 9px; transform-origin: 0 0; }
+  .detect[data-anchor="br"] .pill { right: 9px; bottom: 9px; transform-origin: 100% 100%; }
+  .detect.show-pill .pill { opacity: 1; transform: scale(1); }
+
+  /* ---------- Overlays ---------- */
+  .overlay { position: absolute; inset: 0; pointer-events: none; }
+  .overlay--left { background: linear-gradient(90deg, rgba(8,14,23,.82) 0%, rgba(8,14,23,.4) 38%, rgba(8,14,23,0) 62%); }
+  .overlay--bottom { background: linear-gradient(180deg, rgba(8,14,23,0) 60%, rgba(8,14,23,.85) 100%); }
+
+  /* ---------- Core content ---------- */
+  .logo { position: absolute; left: var(--pad); top: clamp(28px, 6.2vh, 56px); width: 255px; height: 28px; z-index: 2; }
+  .logo img { display: block; width: 100%; height: 100%; }
+
+  .content {
+    position: absolute; z-index: 2; left: var(--pad);
+    top: calc(50% - clamp(60px, 12.8vh, 115px)); transform: translateY(-50%);
+    width: min(692px, calc(100% - 2 * var(--pad)));
+    display: flex; flex-direction: column; align-items: flex-start; gap: 28px;
+  }
+  h1 {
+    font-family: var(--font-display); font-weight: 300; font-variation-settings: "SERF" 50;
+    font-size: clamp(48px, 6.67vw, 96px); line-height: .94; letter-spacing: -0.03em;
+  }
+  .subline { font-size: clamp(17px, 1.53vw, 22px); line-height: 1.4; max-width: 530px; }
+  .btn {
+    display: inline-flex; align-items: center; padding: 12px 20px; border-radius: 10px;
+    background: #fff; color: var(--ink); font-weight: 500; font-size: 16px; line-height: 20px;
+    text-decoration: none; transition: background .2s ease;
+  }
+  .btn:hover { background: #e8eaee; }
+
+  .footer {
+    position: absolute; z-index: 2; left: var(--pad); right: var(--pad); bottom: 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 13px; line-height: 16px; color: var(--muted);
+  }
+  .footer nav { display: flex; gap: 24px; }
+  .footer a { color: inherit; text-decoration: none; }
+  .footer a:hover { color: #fff; }
+
+  @media (max-width: 720px) {
+    .content { top: auto; bottom: 96px; transform: none; gap: 20px; }
+    .logo { width: 200px; height: 22px; }
+  }
+</style>
+</head>
+<body>
+<main class="hero">
+  <div class="scene" id="scene" aria-hidden="true">
+    <!-- photos injected by script -->
+    <div class="tint"></div>
+  </div>
+
+  <div class="overlay overlay--left"></div>
+  <div class="overlay overlay--bottom"></div>
+
+  <!-- detection box sits above the photo, dark layer and gradients, so its colour stays at full strength -->
+  <div class="scene scene--top" id="sceneTop" aria-hidden="true">
+    <div class="detect" id="detect">
+      <svg class="tick tick--tl" viewBox="0 0 12 12"><path d="M12 1.40737C6.4379 2.02227 2.0217 6.43798 1.40681 12H0V0H12V1.40737Z" fill="currentColor"/></svg>
+      <svg class="tick tick--br" viewBox="0 0 12 12"><path d="M12 1.40737C6.4379 2.02227 2.0217 6.43798 1.40681 12H0V0H12V1.40737Z" fill="currentColor"/></svg>
+      <span class="pill" id="pill"></span>
+    </div>
+  </div>
+
+  <a class="logo" href="#" aria-label="Athletia Core"><img src="assets/logo.svg" alt="Athletia Core"></a>
+
+  <section class="content">
+    <h1>Pro sports<br>rights protection</h1>
+    <p class="subline">Purpose-built tech and deep human expertise to protect content, ensure compliance, and stop abuse.</p>
+    <a class="btn" href="#">Contact us</a>
+  </section>
+
+  <footer class="footer">
+    <span>© 2026 Athletia Core</span>
+    <nav><a href="#">Imprint</a><a href="#">Privacy</a></nav>
+  </footer>
+</main>
+
+<script>
+/*
+ * Each slide = one background photo + one detection frame.
+ * All coordinates are in the 1440×900 Figma frame.
+ *   photo:  position/size of the photo layer in Figma
+ *   frame:  expanded detection box  [x, y, w, h]
+ *   anchor: which corner the pill sits in ("tl" or "br") — the box collapses into / grows out of this corner
+ */
+const SLIDES = [
+  {
+    label: "Stop abuse",
+    src: "assets/photo-abuse.webp",
+    photo: [-80, -250, 1800, 1198],
+    frame: [878, 262, 300, 300],
+    anchor: "tl",
+    color: "#fbd533", edge: "#9a8528", line: "rgba(251,213,51,.6)",
+  },
+  {
+    label: "Ensure compliance",
+    src: "assets/photo-compliance.webp",
+    photo: [-52, -99, 2079, 1353],
+    frame: [790, 306, 295, 370],
+    anchor: "br",
+    color: "#3fd4d0", edge: "#298586", line: "rgba(63,212,208,.6)",
+  },
+  {
+    label: "Protect content",
+    src: "assets/photo-content.webp",
+    photo: [-373, -141, 1892, 1231],
+    frame: [944, 276, 252, 412],
+    anchor: "tl",
+    color: "#f22857", edge: "#941e3d", line: "rgba(242,40,87,.6)",
+  },
+];
+
+const TIMING = {
+  photoLead: 500,   // photo settles before the box appears
+  boxIn: 300,       // small box fades in at the anchor corner
+  expand: 1000,     // box grows to full frame
+  pillIn: 450,      // coloured chip pops in once the box is full size
+  hold: 3000,       // stay expanded with chip
+  pillOut: 300,     // chip fades before the box shrinks
+  collapse: 650,    // box shrinks back to the corner
+  fadeOut: 300,
+};
+
+const FOCAL = { x: 1060, y: 450 }; // keep the subject in view when the viewport crops the scene
+const scene = document.getElementById("scene");
+const sceneTop = document.getElementById("sceneTop");
+const detect = document.getElementById("detect");
+const pill = document.getElementById("pill");
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+// Build photo layers
+const photos = SLIDES.map(s => {
+  const el = document.createElement("div");
+  el.className = "photo";
+  const [x, y, w, h] = s.photo;
+  Object.assign(el.style, { left: x + "px", top: y + "px", width: w + "px", height: h + "px" });
+  const img = new Image(); img.src = s.src; img.alt = ""; img.decoding = "async";
+  if (s.tone) img.style.filter = s.tone;
+  el.appendChild(img);
+  scene.insertBefore(el, scene.querySelector(".tint"));
+  return el;
+});
+
+// Scale the 1440×900 scene to cover the viewport, biased toward the focal point
+function layout() {
+  const vw = scene.parentElement.clientWidth, vh = scene.parentElement.clientHeight;
+  const s = Math.max(vw / 1440, vh / 900);
+  const W = 1440 * s, H = 900 * s;
+  const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+  const tx = clamp(vw / 2 - FOCAL.x * s, vw - W, 0);
+  const ty = clamp(vh / 2 - FOCAL.y * s, vh - H, 0);
+  scene.style.transform = sceneTop.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`;
+}
+addEventListener("resize", layout); layout();
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function setRect(r) {
+  detect.style.left = r[0] + "px"; detect.style.top = r[1] + "px";
+  detect.style.width = r[2] + "px"; detect.style.height = r[3] + "px";
+}
+
+// Collapsed rect = the box hugging the pill (10px around it), in the anchor corner of the full frame
+function collapsedRect(slide) {
+  const [x, y, w, h] = slide.frame;
+  const cw = pill.offsetWidth + 20, ch = pill.offsetHeight + 20;
+  return slide.anchor === "br" ? [x + w - cw, y + h - ch, cw, ch] : [x, y, cw, ch];
+}
+
+function prepare(slide) {
+  detect.classList.add("no-anim");
+  detect.classList.remove("is-visible", "is-collapsing", "show-pill");
+  detect.dataset.anchor = slide.anchor;
+  detect.style.setProperty("--c", slide.color);
+  detect.style.setProperty("--c-edge", slide.edge);
+  detect.style.setProperty("--c-line", slide.line);
+  pill.textContent = slide.label;
+  setRect(collapsedRect(slide));
+  detect.offsetWidth; // flush
+  detect.classList.remove("no-anim");
+}
+
+async function run() {
+  let i = 0;
+  // wait for fonts so the pill width is measured correctly
+  if (document.fonts && document.fonts.ready) await document.fonts.ready;
+  while (true) {
+    const slide = SLIDES[i];
+    photos.forEach((p, k) => p.classList.toggle("is-active", k === i));
+    prepare(slide);
+    await sleep(TIMING.photoLead);
+
+    detect.classList.add("is-visible");
+    await sleep(TIMING.boxIn);
+
+    setRect(slide.frame);
+    await sleep(TIMING.expand);
+
+    detect.classList.add("show-pill");
+    await sleep(TIMING.pillIn + TIMING.hold);
+
+    detect.classList.remove("show-pill");
+    await sleep(TIMING.pillOut);
+
+    if (!reduceMotion) {
+      detect.classList.add("is-collapsing");
+      setRect(collapsedRect(slide));
+      await sleep(TIMING.collapse);
+    }
+
+    detect.classList.remove("is-visible");
+    await sleep(TIMING.fadeOut);
+    i = (i + 1) % SLIDES.length;
+  }
+}
+
+if (reduceMotion) document.documentElement.style.setProperty("--t-expand", "0ms");
+run();
+</script>
+<script src="/switcher.js" defer></script>
+</body>
+</html>

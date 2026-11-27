@@ -10,7 +10,7 @@
   const DEMOS = [
     { n: 1, path: '/1/', label: 'Concept 1', ready: true },
     { n: 2, path: '/2/', label: 'Concept 2', ready: true },
-    { n: 3, path: '/3/', label: 'Concept 3', ready: false },
+    { n: 3, path: '/3/', label: 'Concept 3', ready: true },
   ];
   const HIDE_AFTER = 2500;     // ms of inactivity before the pill hides
   const FIRST_HIDE = 4000;     // a little longer on first load so it gets noticed
