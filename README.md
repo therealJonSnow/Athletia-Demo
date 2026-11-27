@@ -30,3 +30,12 @@ All pages send `noindex` so previews stay out of search results.
 ## Fonts
 
 Both concepts use **Season Collection (TRIAL)**, a single variable font in `fonts/`, loaded by `fonts/season.css`. Pick the style with the `SERF` axis: Sans is the default (`0`), Mix is `font-variation-settings: "SERF" 50`, and Serif is `100`. Weight runs 300 to 900. Replace the trial file with the licensed one before launch.
+
+## Exporting the intros as video
+
+```bash
+python3 -m http.server 8123 &
+node scripts/export-intros.js
+```
+
+The script renders each concept's intro frame by frame at 60fps and saves it as `exports/concept-<n>-1920x1080.mp4`. Exports are gitignored. Pass a concept number to export just that one, or `--w=1080 --h=1920` for portrait. The script header lists the other options. It needs Playwright and ffmpeg.
