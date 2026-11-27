@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Athletia Core</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500&family=Bitter:wght@300&display=swap" rel="stylesheet">
+<script>
+  // Run the intro only when motion is allowed; otherwise the page shows its final state.
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) document.documentElement.classList.add('intro');
+</script>
+<style>
+  :root {
+    /* Concept 2 · navy stage, everything pink. Layout: centred mark + target band, copy and legal pinned to the bottom edge. */
+    --navy: #080E17;
+    --pink: #F22857;
+    --pink-hot: #FF1B50;
+    --pink-20: rgba(242, 40, 87, 0.20);
+    --pink-30: rgba(242, 40, 87, 0.30);
+    /* Season Sans / Season Mix are trial fonts; these are the web stand-ins until licensed files are added. */
+    --font-body: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+    --font-display: "Bitter", Georgia, "Times New Roman", serif;
+    --edge: clamp(16px, 2.8vw, 40px);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--navy);
+    color: var(--pink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  :focus-visible { outline: 2px solid var(--pink); outline-offset: 3px; border-radius: 4px; }
+
+  .stage {
+    position: relative;
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    overflow: hidden;
+  }
+
+  /* ---------- Centre: logo + target band ---------- */
+  .centre {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(28px, 3vw, 44px);
+    padding: 48px var(--edge) 24px;   /* nudges the hero ~24px above true centre, towards the gap above the copy */
+  }
+  .logo { width: 393px; max-width: 100%; color: var(--pink); line-height: 0; }
+  .logo svg { width: 100%; height: auto; display: block; overflow: visible; }
+  .sig-c { transform-box: fill-box; transform-origin: center; }
+
+  .slot {
+    position: relative;
+    width: min(860px, 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .target {
+    position: relative;
+    width: 100%;
+    display: grid;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    padding: 12px;
+  }
+  .tick { position: absolute; width: 10px; height: 10px; line-height: 0; }
+  .tick svg { width: 10px; height: 10px; display: block; }
+  .tick.tl { top: 1px; left: 1px; }
+  .tick.br { right: 1px; bottom: 1px; transform: rotate(180deg); }
+
+  .band {
+    background: var(--pink);
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+  }
+  .band-inner { padding: 48px clamp(24px, 3.9vw, 56px); }
+  .band h1 {
+    margin: 0;
+    color: var(--navy);
+    font-family: var(--font-display);
+    font-weight: 300;
+    font-size: 56px;
+    line-height: 1;
+    letter-spacing: -0.015em;
+    text-align: center;
+    text-wrap: balance;
+    padding-bottom: 0.08em;
+  }
+  .band h1 span { display: inline-block; }
+
+
+  /* ---------- Bottom: copy, contact, legal ---------- */
+  .foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px 40px;
+    flex-wrap: wrap;
+    padding: 0 var(--edge) var(--edge);
+  }
+  .intro-copy { display: grid; gap: 24px; justify-items: start; max-width: 560px; }
+  .intro-copy p { margin: 0; font-size: 22px; line-height: 1.2; }
+  .intro-copy p .w { display: inline-block; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 16px;
+    border-radius: 10px;
+    background: var(--pink-20);
+    color: var(--pink-hot);
+    font-size: 18px;
+    font-weight: 500;
+    transition: background-color .2s ease;
+  }
+  .btn svg { width: 12px; height: 12px; transition: transform .2s ease; }
+  .btn:hover { background: var(--pink-30); }
+  .btn:hover svg { transform: translate(2px, -2px); }
+
+  /* Contact hover: the hero's corner-tick crosshairs open around the button */
+  .btn-wrap { position: relative; display: inline-flex; }
+  .btn-tick { position: absolute; width: 6px; height: 6px; line-height: 0; opacity: 0; pointer-events: none;
+    transition: transform .45s cubic-bezier(0.16, 1, 0.3, 1), opacity .2s ease; }
+  .btn-tick svg { width: 6px; height: 6px; display: block; }
+  .btn-tick.tl { top: -5px; left: -5px; transform: translate(5px, 5px); }
+  .btn-tick.br { bottom: -5px; right: -5px; transform: rotate(180deg) translate(5px, 5px); }
+  .btn-wrap:hover .btn-tick, .btn:focus-visible ~ .btn-tick { opacity: 1; }
+  .btn-wrap:hover .btn-tick.tl, .btn:focus-visible ~ .btn-tick.tl { transform: none; }
+  .btn-wrap:hover .btn-tick.br, .btn:focus-visible ~ .btn-tick.br { transform: rotate(180deg); }
+
+  .legal { display: flex; gap: 16px; font-size: 18px; line-height: 1.2; }
+  .legal .copy { opacity: .6; }
+  .legal a { opacity: .7; transition: opacity .2s ease; }
+  .legal a:hover { opacity: 1; }
+
+  /* Pre-animation state (only when the intro runs) */
+  .intro .sig-c,
+  .intro .sig-l,
+  .intro .sig-r,
+  .intro .word-l,
+  .intro .word-r,
+  .intro .intro-copy .w,
+  .intro .btn,
+  .intro .legal > *,
+  .intro .tick,
+  .intro .band,
+  .intro .band h1 span { opacity: 0; }
+
+  @media (max-width: 720px) {
+    .centre { padding-top: 72px; }
+    .foot { flex-direction: column; align-items: flex-start; }
+    .legal { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+<main class="stage" id="stage">
+  <section class="centre">
+    <div class="logo" role="img" aria-label="Athletia Core">
+      <svg viewBox="0 0 393 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<defs><clipPath id="clipL"><rect x="-20" y="-10" width="202.4" height="64"/></clipPath><clipPath id="clipSL"><rect x="150" y="-10" width="56.3" height="64"/></clipPath><clipPath id="clipSR"><rect x="249.6" y="-10" width="60" height="64"/></clipPath><clipPath id="clipR"><rect x="273.4" y="-10" width="140" height="64"/></clipPath></defs>
+<g clip-path="url(#clipL)"><g class="word-l">
+<path d="M0 42.5286V42.1241L3.1203 39.2927L18.0862 0.866754H21.3221L36.5191 39.2349L39.5816 42.1241V42.5286H29.5851L29.5273 42.1241L31.6075 39.3505L27.9672 29.9896H10.1699L6.64509 39.3505L8.66751 42.1241L8.60973 42.5286H0ZM11.2678 27.0426H26.8115L18.953 6.76066L11.2678 27.0426Z" fill="currentColor"/>
+<path d="M48.3254 43.1064C44.0495 43.1064 40.9869 40.6795 40.9869 35.3634V15.1393H35.4397V13.059C40.4669 12.6546 42.2582 11.6145 42.7782 5.48943H45.1474V12.539L53.0637 12.1923L53.237 15.1393H45.1474V35.5368C45.1474 38.946 46.9964 40.2173 49.3078 40.2173C50.5212 40.2173 51.6769 40.0439 52.717 39.2927L52.9481 41.4307C52.0814 42.2397 50.4634 43.1064 48.3254 43.1064Z" fill="currentColor"/>
+<path d="M53.8866 42.5286V42.0663L55.9091 39.4661V4.33376L53.8866 1.50237V1.0401L60.0695 0V18.664C61.803 14.5614 65.5011 11.9612 69.8926 11.9612C75.7866 11.9612 80.0047 15.5437 80.0047 22.131V39.4661L82.0272 42.0663V42.5286H73.8219V42.0663L75.8443 39.4661V22.6511C75.8443 17.6239 73.0707 15.197 69.0259 15.197C64.7499 15.197 61.0518 18.5485 60.0695 23.8068V39.4661L62.0919 42.0663V42.5286H53.8866Z" fill="currentColor"/>
+<path d="M90.0356 39.4661L92.058 42.0663V42.5286H83.8528V42.0663L85.8752 39.4661V4.33376L83.8528 1.50237V1.0401L90.0356 0V39.4661Z" fill="currentColor"/>
+<path d="M98.1713 27.1582C98.1713 35.0167 102.91 39.6972 108.803 39.6972C113.484 39.6972 116.662 37.3281 118.395 32.3587L120.822 33.1099C119.262 39.1772 114.582 43.1064 107.994 43.1064C99.5003 43.1064 93.722 36.4035 93.722 27.5049C93.722 18.664 99.1536 11.9612 107.706 11.9612C117.413 11.9612 120.938 19.5308 120.476 26.7537H98.1713C98.1713 26.8693 98.1713 27.0426 98.1713 27.1582ZM98.4024 24.3268H116.026C115.795 18.8952 112.791 14.3881 107.706 14.3881C102.563 14.3881 99.2114 18.7218 98.4024 24.3268Z" fill="currentColor"/>
+<path d="M132.809 43.1064C128.533 43.1064 125.47 40.6795 125.47 35.3634V15.1393H119.923V13.059C124.95 12.6546 126.742 11.6145 127.262 5.48943H129.631V12.539L137.547 12.1923L137.72 15.1393H129.631V35.5368C129.631 38.946 131.48 40.2173 133.791 40.2173C135.005 40.2173 136.16 40.0439 137.2 39.2927L137.432 41.4307C136.565 42.2397 134.947 43.1064 132.809 43.1064Z" fill="currentColor"/>
+<path d="M144.668 39.4661L146.691 42.0663V42.5286H138.543V42.0663L140.566 39.4661V16.5838L138.543 13.7525V13.2902L144.668 12.2501V39.4661ZM142.53 7.22293C140.855 7.22293 139.526 5.89391 139.526 4.16041C139.526 2.48469 140.855 1.15567 142.53 1.15567C144.264 1.15567 145.651 2.48469 145.651 4.16041C145.651 5.89391 144.264 7.22293 142.53 7.22293Z" fill="currentColor"/>
+<path d="M157.71 43.1064C152.105 43.1064 148.349 39.9283 148.349 35.0745C148.349 30.0474 152.048 27.1582 158.577 25.8292L167.938 24.0379V21.8999C167.938 16.9883 164.991 14.4459 160.888 14.4459C156.612 14.4459 153.319 17.1617 153.203 22.131L149.043 20.9754C149.678 15.8904 154.128 11.9612 160.946 11.9612C167.707 11.9612 172.041 15.7171 172.041 22.3044V39.4083L174.063 42.0663V42.5286H167.938V36.4035C165.973 40.6217 162.449 43.1064 157.71 43.1064ZM167.938 32.0698V26.407L159.848 28.025C155.226 29.0651 152.741 31.203 152.741 34.7856C152.741 38.0215 155.052 40.1017 158.75 40.1017C163.72 40.1017 166.898 36.4613 167.938 32.0698Z" fill="currentColor"/>
+</g></g>
+<g clip-path="url(#clipSL)"><g class="sig-l">
+<path d="M184.953 23.7074C185.946 32.6938 193.081 39.828 202.068 40.8215V43.0956H182.68V23.7074H184.953Z" fill="currentColor"/>
+<path d="M202.068 2.28448C193.081 3.27796 185.946 10.4125 184.953 19.3989H182.68V0.0107422H202.068V2.28448Z" fill="currentColor"/>
+</g></g>
+<g clip-path="url(#clipSR)"><g class="sig-r">
+<path d="M273.158 19.3989H270.885C269.892 10.4125 262.756 3.27796 253.77 2.28448V0.0107422H273.158V19.3989Z" fill="currentColor"/>
+<path d="M273.158 43.0956H253.77V40.8215C262.756 39.828 269.892 32.6938 270.885 23.7074H273.158V43.0956Z" fill="currentColor"/>
+</g></g>
+<g class="sig-c">
+<path d="M208.651 23.7074C209.644 32.694 216.778 39.828 225.765 40.8215V43.0956H206.376V23.7074H208.651Z" fill="currentColor"/>
+<path d="M249.461 19.3989H247.188C246.194 10.4124 239.059 3.27798 230.073 2.28448V0.0107422H249.461V19.3989Z" fill="currentColor"/>
+<path d="M249.461 43.0956H230.073V40.8215C239.059 39.828 246.194 32.694 247.188 23.7074H249.461V43.0956Z" fill="currentColor"/>
+<path d="M225.765 2.28448C216.778 3.27799 209.644 10.4124 208.651 19.3989H206.376V0.0107422H225.765V2.28448Z" fill="currentColor"/>
+</g>
+<g clip-path="url(#clipR)"><g class="word-r">
+<path d="M302.281 43.0776C291.65 43.0776 281.773 35.8738 281.773 21.5242C281.773 6.94218 292.173 0.0288086 302.514 0.0288086C310.298 0.0288086 316.224 3.68883 318.606 9.32409L315.585 12.926L315.12 12.8679C313.9 7.05837 308.788 2.87549 302.455 2.87549C293.393 2.87549 286.537 9.49838 286.537 21.3499C286.537 33.2014 294.264 39.4176 302.397 39.4176C309.543 39.4176 314.539 35.99 316.515 28.6118L319.129 29.1347C317.56 38.0233 310.821 43.0776 302.281 43.0776Z" fill="currentColor"/>
+<path d="M334.421 43.0776C325.997 43.0776 319.897 36.4547 319.897 27.3918C319.897 18.387 325.997 11.7641 334.421 11.7641C342.903 11.7641 349.003 18.387 349.003 27.3918C349.003 36.4547 342.903 43.0776 334.421 43.0776ZM334.421 40.4633C340.23 40.4633 344.529 35.0023 344.529 27.3918C344.529 19.7232 340.23 14.3203 334.421 14.3203C328.669 14.3203 324.37 19.7813 324.37 27.3918C324.37 35.0604 328.669 40.4633 334.421 40.4633Z" fill="currentColor"/>
+<path d="M350.888 42.4967V42.0319L352.921 39.4176V16.4118L350.888 13.5651V13.1003L357.046 12.0546V18.6775C358.557 14.5527 361.461 11.7641 365.354 11.7641C366.109 11.7641 366.864 11.8222 367.445 11.9965L367.039 16.2956C360.764 14.4946 357.918 19.9556 357.046 23.9642V39.4176L359.719 42.0319V42.4967H350.888Z" fill="currentColor"/>
+<path d="M370.159 27.0432C370.159 34.9442 374.923 39.65 380.849 39.65C385.554 39.65 388.75 37.2681 390.492 32.2718L392.932 33.0271C391.364 39.1271 386.658 43.0776 380.035 43.0776C371.495 43.0776 365.686 36.3385 365.686 27.3918C365.686 18.5032 371.147 11.7641 379.745 11.7641C389.505 11.7641 393.049 19.3746 392.584 26.6366H370.159C370.159 26.7528 370.159 26.927 370.159 27.0432ZM370.391 24.1966H388.111C387.878 18.7356 384.857 14.2041 379.745 14.2041C374.574 14.2041 371.205 18.5613 370.391 24.1966Z" fill="currentColor"/>
+</g></g>
+      </svg>
+    </div>
+
+    <div class="slot" id="slot">
+      <div class="target" id="target">
+        <span class="tick tl" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M10 1.17281C5.36491 1.68522 1.68475 5.36498 1.17234 10H0V0H10V1.17281Z" fill="#F22857"/></svg></span>
+        <span class="tick br" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M10 1.17281C5.36491 1.68522 1.68475 5.36498 1.17234 10H0V0H10V1.17281Z" fill="#F22857"/></svg></span>
+        <div class="band" id="band"><div class="band-inner"><h1><span>Pro sports rights protection</span></h1></div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <div class="intro-copy">
+      <p id="subline">Purpose-built tech and deep human expertise to protect content, ensure compliance, and stop abuse.</p>
+      <span class="btn-wrap">
+      <a class="btn" href="#contact">Contact
+        <svg viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2.7444 9.00515L8.75481 2.99474M8.75481 7.94449V2.99474H3.80507" stroke="currentColor" stroke-width="1.1" stroke-linecap="square"/></svg>
+      </a>
+      <span class="btn-tick tl" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M10 1.17281C5.36491 1.68522 1.68475 5.36498 1.17234 10H0V0H10V1.17281Z" fill="#F22857"/></svg></span>
+      <span class="btn-tick br" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M10 1.17281C5.36491 1.68522 1.68475 5.36498 1.17234 10H0V0H10V1.17281Z" fill="#F22857"/></svg></span>
+      </span>
+    </div>
+    <nav class="legal" aria-label="Legal">
+      <span class="copy">© 2026 Athletia Core</span>
+      <a href="#imprint">Imprint</a>
+      <a href="#privacy">Privacy</a>
+    </nav>
+  </footer>
+</main>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // Split the subline into words so they can stagger in
+  const sub = $('#subline');
+  sub.innerHTML = sub.textContent.trim().split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
+
+  const target = $('#target'), band = $('#band');
+  const headline = $('.band h1 span');
+  const logo = $('.logo'), sigC = $('.sig-c'), sigL = $('.sig-l'), sigR = $('.sig-r'), wordL = $('.word-l'), wordR = $('.word-r');
+  const words = $$('#subline .w'), btn = $('.btn'), legal = $$('.legal > *'), ticks = $$('.tick');
+
+  const outExpo = 'cubic-bezier(0.16, 1, 0.3, 1)';
+  const inOut = 'cubic-bezier(0.65, 0, 0.35, 1)';
+  let running = [];
+
+  const anim = (el, frames, opts) => { const a = el.animate(frames, { fill: 'both', ...opts }); running.push(a); return a; };
+
+  function reset() {
+    running.forEach(a => a.cancel());
+    running = [];
+  }
+
+  function play() {
+    reset();
+    if (reduce.matches) { root.classList.remove('intro'); return; }
+    root.classList.add('intro');
+
+    // The band sits at its final size the whole time, so the headline never reflows or drifts.
+    // Only the corner ticks (transform) and the pink fill (clip-path) move: no layout animation.
+    const finalW = target.offsetWidth, finalH = target.offsetHeight;
+    const dx = finalW / 2 - 12, dy = finalH / 2 - 12;   // ticks start as a 24px box at the centre
+
+    const gap = parseFloat(getComputedStyle($('.centre')).rowGap) || 44;
+    const lift = (gap + finalH) / 2;           // logo starts centred on its own, like frame 1
+
+    // ---- 1. Logo animates in ---------------------------------------------
+    anim(logo, [{ transform: `translateY(${lift}px)` }, { transform: `translateY(${lift}px)` }], { duration: 10 });
+    // Logo builds outward from the centre: square, then the signet's sides, then the words
+    anim(sigC, [{ opacity: 0, transform: 'scale(0.5)' }, { opacity: 1, transform: 'none' }], { duration: 700, delay: 150, easing: outExpo });
+    anim(sigL, [{ opacity: 1, transform: 'translateX(24px)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: 550, easing: outExpo });
+    anim(sigR, [{ opacity: 1, transform: 'translateX(-24px)' }, { opacity: 1, transform: 'none' }], { duration: 800, delay: 550, easing: outExpo });
+    anim(wordL, [{ opacity: 1, transform: 'translateX(190px)' }, { opacity: 1, transform: 'none' }], { duration: 1100, delay: 950, easing: outExpo });
+    anim(wordR, [{ opacity: 1, transform: 'translateX(-125px)' }, { opacity: 1, transform: 'none' }], { duration: 1100, delay: 950, easing: outExpo });
+
+    // ---- 2. One continuous move: crosshairs open, the red box fills in behind them, the text rises ----
+    const T = 1300;                                    // hero starts while the words are still settling
+    const glide = 'cubic-bezier(0.6, 0, 0.15, 1)';   // soft start, long settle: no stops along the way
+    const D = 1700;                                    // whole expansion, ticks to final band
+    anim(logo, [{ transform: `translateY(${lift}px)` }, { transform: 'translateY(0)' }], { duration: 1200, delay: T, easing: inOut });
+
+    const S = T + 150;
+    ticks.forEach(t => anim(t, [{ opacity: 0 }, { opacity: 1 }], { duration: 300, delay: S, easing: 'ease-out' }));
+    anim($('.tick.tl'), [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }],
+      { duration: D, delay: S, easing: glide });
+    anim($('.tick.br'), [{ transform: `translate(${-dx}px, ${-dy}px) rotate(180deg)` }, { transform: 'rotate(180deg)' }],
+      { duration: D, delay: S, easing: glide });
+
+    // Red box grows from the centre a beat behind the ticks and lands with them
+    anim(band, [{ opacity: 1, clipPath: 'inset(50% 50% 50% 50% round 10px)' }, { opacity: 1, clipPath: 'inset(0% 0% 0% 0% round 10px)' }],
+      { duration: D - 200, delay: S + 200, easing: glide });
+
+    // Text rises in while the box is still settling
+    anim(headline, [{ opacity: 0, transform: 'translateY(60%)' }, { opacity: 1, transform: 'none' }],
+      { duration: 1000, delay: S + D * 0.55, easing: outExpo });
+
+    // ---- 3. Lower content comes in once the hero has landed ---------------
+    const L = S + D * 0.7;                              // overlaps the box landing: one continuous flow
+    words.forEach((w, i) => anim(w,
+      [{ opacity: 0, transform: 'translateY(0.6em)' }, { opacity: 1, transform: 'none' }],
+      { duration: 900, delay: L + i * 12, easing: outExpo }));
+
+    anim(btn, [{ opacity: 0, clipPath: 'inset(0 100% 0 0 round 10px)' }, { opacity: 1, clipPath: 'inset(0 0% 0 0 round 10px)' }],
+      { duration: 700, delay: L + 150, easing: outExpo });
+
+    legal.forEach((el, i) => anim(el,
+      [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: el.classList.contains('copy') ? 0.6 : 0.7, transform: 'none' }],
+      { duration: 600, delay: L + 200 + i * 50, easing: outExpo }));
+
+    Promise.all(running.map(a => a.finished)).then(() => {
+      // Hand the final state back to CSS so the page stays responsive
+      running.forEach(a => a.cancel());
+      running = [];
+      root.classList.remove('intro');
+      $$('.logo, .sig-c, .sig-l, .sig-r, .word-l, .word-r, #subline .w, .btn, .legal > *, .tick, .band, .band h1 span').forEach(el => {
+        el.style.opacity = ''; el.style.transform = ''; el.style.filter = ''; el.style.clipPath = '';
+      });
+    }).catch(() => {});
+  }
+
+  // Wait for the webfonts so the headline is measured at its real size, but never more than 1s:
+  // on a slow connection the page still animates in (with the fallback font) instead of sitting blank.
+  const fontsReady = document.fonts ? document.fonts.ready : Promise.resolve();
+  Promise.race([fontsReady, new Promise(r => setTimeout(r, 1000))]).then(() => requestAnimationFrame(play));
+
+  // The intro uses px values measured at the start. If the width changes mid-intro, jump to the end state
+  // (height-only changes, like a mobile URL bar collapsing, are ignored).
+  let lastW = window.innerWidth;
+  window.addEventListener('resize', () => {
+    if (window.innerWidth === lastW) return;
+    lastW = window.innerWidth;
+    running.forEach(a => a.finish());
+  });
+})();
+</script>
+<script src="/switcher.js" defer></script>
+</body>
+</html>
