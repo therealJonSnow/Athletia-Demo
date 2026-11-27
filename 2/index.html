@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Athletia Core — Intro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500&family=Newsreader:opsz,wght@6..72,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080e17;
+    --pink: #f22857;
+    --pink-text: #ff1b50;
+    --pink-20: rgba(242, 40, 87, 0.2);
+    /* Season fonts are used if installed locally; Google fallbacks otherwise */
+    --font-mix: "Season Mix TRIAL", "Season Mix", "Newsreader", Georgia, serif;
+    --font-sans: "Season Sans TRIAL", "Season Sans", "Hanken Grotesk", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: #fff;
+    font-family: var(--font-sans);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .stage { position: relative; width: 100vw; height: 100vh; height: 100svh; overflow: hidden; }
+
+  /* Background symbol — drawn at its final (cover) size, scaled down by JS */
+  .symbol {
+    position: absolute;
+    left: 50%; top: calc(50% + 1.5px);
+    width: max(147.08vw, 235.3vh);
+    aspect-ratio: 2118 / 1009;
+    transform: translate(-50%, -50%) scale(1);
+    transform-origin: 50% 50%;
+    pointer-events: none;
+    will-change: transform;
+  }
+  .symbol svg { display: block; width: 100%; height: 100%; }
+
+  /* Content stack (logo + hero), centred like the Figma frame */
+  .stack {
+    position: absolute;
+    left: 50%; top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(593px, calc(100vw - 48px));
+    display: flex; flex-direction: column; align-items: center; gap: 48px;
+  }
+  .logo { display: block; width: 309.925px; height: 34px; overflow: visible; will-change: transform; }
+  .logo .word { will-change: transform, opacity; }
+
+  .hero { display: flex; flex-direction: column; align-items: center; gap: 32px; width: 100%; text-align: center; }
+  .hero-text { display: flex; flex-direction: column; align-items: center; gap: 24px; width: 100%; }
+  h1 {
+    width: max-content;
+    font-family: var(--font-mix);
+    font-weight: 300;
+    font-size: 88px;
+    line-height: 0.96;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+  /* each line rises out of its own mask */
+  h1 .line { display: block; overflow: hidden; padding-bottom: 0.14em; margin-bottom: -0.14em; }
+  h1 .line > span { display: block; white-space: nowrap; will-change: transform; }
+  .sub {
+    width: max-content; /* line break fixed to match Figma */
+    font-size: 18px; line-height: 1.4;
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .cta {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 44px; padding: 0 16px; border: 0; border-radius: 10px;
+    background: var(--pink-20); color: var(--pink-text);
+    font: 500 18px/1.2 var(--font-sans);
+    cursor: pointer; text-decoration: none;
+    transition: background-color .2s ease;
+  }
+  .cta:hover { background: rgba(242, 40, 87, 0.3); }
+  .cta:focus-visible { outline: 2px solid var(--pink-text); outline-offset: 3px; }
+
+  /* Contact hover: corner-tick crosshairs open around the button */
+  .btn-wrap { position: relative; display: inline-flex; }
+  .btn-tick { position: absolute; width: 6px; height: 6px; line-height: 0; opacity: 0; pointer-events: none;
+    transition: transform .45s cubic-bezier(0.16, 1, 0.3, 1), opacity .2s ease; }
+  .btn-tick svg { width: 6px; height: 6px; display: block; }
+  .btn-tick.tl { top: -5px; left: -5px; transform: translate(5px, 5px); }
+  .btn-tick.br { bottom: -5px; right: -5px; transform: rotate(180deg) translate(5px, 5px); }
+  .btn-wrap:hover .btn-tick, .cta:focus-visible ~ .btn-tick { opacity: 1; }
+  .btn-wrap:hover .btn-tick.tl, .cta:focus-visible ~ .btn-tick.tl { transform: none; }
+  .btn-wrap:hover .btn-tick.br, .cta:focus-visible ~ .btn-tick.br { transform: rotate(180deg); }
+
+  .legal {
+    position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%);
+    display: flex; gap: 24px;
+    font-size: 14px; color: rgba(255, 255, 255, 0.5);
+  }
+  .legal a { color: inherit; text-decoration: none; transition: color .2s ease; }
+  .legal a:hover { color: rgba(255, 255, 255, 0.85); }
+
+  .replay {
+    position: absolute; right: 20px; bottom: 20px;
+    font: 500 12px/1 var(--font-sans); letter-spacing: .02em;
+    color: rgba(255,255,255,.45); background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.08); border-radius: 999px;
+    padding: 8px 12px; cursor: pointer; opacity: 0; transition: opacity .3s ease, color .2s ease;
+  }
+  .replay.show { opacity: 1; }
+  .replay:hover { color: #fff; }
+
+  /* Pre-animation state (before JS runs) */
+  .js .symbol, .js .logo, .js h1, .js .hero-anim, .js .legal { opacity: 0; }
+  .sig-c { transform-box: fill-box; transform-origin: center; }
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js')</script>
+<main class="stage">
+  <div class="symbol" aria-hidden="true">
+    <svg viewBox="0 0 2118 1009" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g opacity="0.2" fill="#F22857"><path d="M53.2061 554.95C76.4622 765.401 243.491 932.475 453.857 955.742V1009H0V554.95H53.2061Z"/><path d="M607.95 554.95C631.206 765.405 798.211 932.474 1008.57 955.742V1009H554.714V554.95H607.95Z"/><path d="M2118 1009H1664.14V955.742C1874.51 932.475 2041.54 765.401 2064.79 554.95H2118V1009Z"/><path d="M1563.29 1009H1109.43V955.742C1319.79 932.475 1486.8 765.405 1510.06 554.95H1563.29V1009Z"/><path d="M453.857 53.2484C243.49 76.5147 76.462 243.597 53.2061 454.05H0V0H453.857V53.2484Z"/><path d="M1008.57 53.2484C798.21 76.5152 631.207 243.595 607.95 454.05H554.714V0H1008.57V53.2484Z"/><path d="M1563.29 454.05H1510.06C1486.8 243.595 1319.79 76.5151 1109.43 53.2484V0H1563.29V454.05Z"/><path d="M2118 454.05H2064.79C2041.54 243.597 1874.51 76.5147 1664.14 53.2484V0H2118V454.05Z"/></g>
+    </svg>
+  </div>
+
+  <div class="stack">
+    <svg class="logo" viewBox="0 0 309.925 34" fill="none" role="img" aria-label="Athletia Core" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- words emerge from behind the mark's edges -->
+        <clipPath id="clip-left"><rect x="-40" y="-10" width="184.088" height="54"/></clipPath>
+        <clipPath id="clip-right"><rect x="215.45" y="-10" width="140" height="54"/></clipPath>
+        <!-- signet sides emerge from behind the centre square -->
+        <clipPath id="clip-sl"><rect x="120" y="-10" width="42.78" height="54"/></clipPath>
+        <clipPath id="clip-sr"><rect x="196.76" y="-10" width="50" height="54"/></clipPath>
+      </defs>
+      <g class="logo-inner">
+        <g clip-path="url(#clip-left)"><g class="word word-left"><path d="M0 33.5442V33.2252L2.46113 30.992L14.2654 0.683648H16.8177L28.8043 30.9464L31.2198 33.2252V33.5442H23.3351L23.2895 33.2252L24.9303 31.0375L22.059 23.6542H8.02145L5.24129 31.0375L6.83646 33.2252L6.79088 33.5442H0ZM8.8874 21.3298H21.1475L14.9491 5.33244L8.8874 21.3298Z" fill="#F22857"/>
+<path d="M38.1165 34C34.7438 34 32.3283 32.0858 32.3283 27.8928V11.941H27.9529V10.3003C31.9181 9.98123 33.331 9.16086 33.7411 4.32976H35.6098V9.89008L41.8537 9.61662L41.9905 11.941H35.6098V28.0295C35.6098 30.7185 37.0682 31.7212 38.8913 31.7212C39.8484 31.7212 40.7599 31.5845 41.5803 30.992L41.7626 32.6783C41.0789 33.3164 39.8028 34 38.1165 34Z" fill="#F22857"/>
+<path d="M42.5028 33.5442V33.1796L44.098 31.1287V3.41823L42.5028 1.18499V0.820376L47.3795 0V14.7212C48.7468 11.4853 51.6637 9.43432 55.1275 9.43432C59.7763 9.43432 63.1034 12.2601 63.1034 17.4558V31.1287L64.6986 33.1796V33.5442H58.2267V33.1796L59.8219 31.1287V17.866C59.8219 13.9008 57.6342 11.9866 54.4439 11.9866C51.0712 11.9866 48.1543 14.63 47.3795 18.7775V31.1287L48.9747 33.1796V33.5442H42.5028Z" fill="#F22857"/>
+<path d="M71.0152 31.1287L72.6103 33.1796V33.5442H66.1385V33.1796L67.7337 31.1287V3.41823L66.1385 1.18499V0.820376L71.0152 0V31.1287Z" fill="#F22857"/>
+<path d="M77.4322 21.4209C77.4322 27.6193 81.1694 31.311 85.8182 31.311C89.5099 31.311 92.0166 29.4424 93.3839 25.5228L95.2981 26.1153C94.0676 30.9008 90.3759 34 85.1802 34C78.4804 34 73.9228 28.7131 73.9228 21.6944C73.9228 14.7212 78.207 9.43432 84.9523 9.43432C92.6091 9.43432 95.3893 15.4048 95.0247 21.1019H77.4322C77.4322 21.193 77.4322 21.3298 77.4322 21.4209ZM77.6145 19.1877H91.5153C91.333 14.9035 88.963 11.3485 84.9523 11.3485C80.896 11.3485 78.2525 14.7668 77.6145 19.1877Z" fill="#F22857"/>
+<path d="M104.752 34C101.38 34 98.9642 32.0858 98.9642 27.8928V11.941H94.5888V10.3003C98.554 9.98123 99.9669 9.16086 100.377 4.32976H102.246V9.89008L108.49 9.61662L108.626 11.941H102.246V28.0295C102.246 30.7185 103.704 31.7212 105.527 31.7212C106.484 31.7212 107.396 31.5845 108.216 30.992L108.398 32.6783C107.715 33.3164 106.439 34 104.752 34Z" fill="#F22857"/>
+<path d="M114.107 31.1287L115.702 33.1796V33.5442H109.275V33.1796L110.871 31.1287V13.0804L109.275 10.8472V10.4826L114.107 9.6622V31.1287ZM112.42 5.69705C111.099 5.69705 110.05 4.6488 110.05 3.2815C110.05 1.95979 111.099 0.91153 112.42 0.91153C113.788 0.91153 114.881 1.95979 114.881 3.2815C114.881 4.6488 113.788 5.69705 112.42 5.69705Z" fill="#F22857"/>
+<path d="M124.393 34C119.972 34 117.01 31.4933 117.01 27.6649C117.01 23.6997 119.927 21.4209 125.077 20.3727L132.46 18.9598V17.2735C132.46 13.3995 130.136 11.3941 126.9 11.3941C123.527 11.3941 120.93 13.5362 120.838 17.4558L117.557 16.5442C118.058 12.5335 121.568 9.43432 126.946 9.43432C132.278 9.43432 135.696 12.3968 135.696 17.5925V31.0831L137.291 33.1796V33.5442H132.46V28.7131C130.911 32.0402 128.131 34 124.393 34ZM132.46 25.2949V20.8284L126.08 22.1046C122.434 22.9249 120.474 24.6113 120.474 27.437C120.474 29.9893 122.297 31.63 125.214 31.63C129.133 31.63 131.64 28.7587 132.46 25.2949Z" fill="#F22857"/></g></g>
+        <g clip-path="url(#clip-sl)"><g class="sig-l"><path d="M145.881 18.6991C146.664 25.7871 152.292 31.4141 159.38 32.1977V33.9915H144.088V18.6991H145.881Z" fill="#F22857"/><path d="M159.38 1.80184C152.292 2.58545 146.664 8.21277 145.881 15.3008H144.088V0.00843913H159.38V1.80184Z" fill="#F22857"/></g></g>
+        <g clip-path="url(#clip-sr)"><g class="sig-r"><path d="M215.452 33.9915H200.16V32.1977C207.248 31.4141 212.876 25.7871 213.659 18.6991H215.452V33.9915Z" fill="#F22857"/><path d="M215.452 15.3008H213.659C212.876 8.21277 207.248 2.58545 200.16 1.80184V0.00843913H215.452V15.3008Z" fill="#F22857"/></g></g>
+        <g class="sig-c"><path d="M164.572 18.6991C165.356 25.7872 170.983 31.4141 178.071 32.1977V33.9915H162.779V18.6991H164.572Z" fill="#F22857"/><path d="M178.071 1.80184C170.983 2.58546 165.356 8.2127 164.572 15.3008H162.779V0.00843913H178.071V1.80184Z" fill="#F22857"/><path d="M196.762 33.9915H181.469V32.1977C188.557 31.4141 194.185 25.7872 194.968 18.6991H196.762V33.9915Z" fill="#F22857"/><path d="M196.762 15.3008H194.968C194.185 8.21268 188.557 2.58546 181.469 1.80184V0.00843913H196.762V15.3008Z" fill="#F22857"/></g>
+        <g clip-path="url(#clip-right)"><g class="word word-right"><path d="M238.424 33.9773C230.039 33.9773 222.249 28.2953 222.249 16.9771C222.249 5.47561 230.451 0.0227203 238.608 0.0227203C244.748 0.0227203 249.422 2.90954 251.301 7.35434L248.918 10.1953L248.551 10.1495C247.589 5.56726 243.557 2.26803 238.562 2.26803C231.414 2.26803 226.006 7.49181 226.006 16.8396C226.006 26.1874 232.101 31.0905 238.516 31.0905C244.152 31.0905 248.093 28.3869 249.651 22.5674L251.713 22.9799C250.476 29.9907 245.16 33.9773 238.424 33.9773Z" fill="#F22857"/>
+<path d="M263.774 33.9773C257.13 33.9773 252.319 28.7535 252.319 21.6052C252.319 14.5027 257.13 9.27889 263.774 9.27889C270.464 9.27889 275.276 14.5027 275.276 21.6052C275.276 28.7535 270.464 33.9773 263.774 33.9773ZM263.774 31.9153C268.357 31.9153 271.747 27.6079 271.747 21.6052C271.747 15.5566 268.357 11.2951 263.774 11.2951C259.238 11.2951 255.847 15.6024 255.847 21.6052C255.847 27.6538 259.238 31.9153 263.774 31.9153Z" fill="#F22857"/>
+<path d="M276.763 33.5191V33.1525L278.367 31.0905V12.9447L276.763 10.6994V10.3328L281.62 9.508V14.7318C282.811 11.4784 285.103 9.27889 288.173 9.27889C288.768 9.27889 289.364 9.32471 289.822 9.46218L289.502 12.8531C284.553 11.4326 282.307 15.7399 281.62 18.9016V31.0905L283.728 33.1525V33.5191H276.763Z" fill="#F22857"/>
+<path d="M291.963 21.3302C291.963 27.5621 295.72 31.2737 300.394 31.2737C304.106 31.2737 306.626 29.395 308.001 25.4543L309.925 26.05C308.688 30.8613 304.976 33.9773 299.753 33.9773C293.017 33.9773 288.434 28.6619 288.434 21.6052C288.434 14.5943 292.742 9.27889 299.523 9.27889C307.222 9.27889 310.017 15.2817 309.65 21.0095H291.963C291.963 21.1011 291.963 21.2386 291.963 21.3302ZM292.146 19.0849H306.122C305.939 14.7776 303.556 11.2034 299.523 11.2034C295.445 11.2034 292.788 14.6401 292.146 19.0849Z" fill="#F22857"/></g></g>
+      </g>
+    </svg>
+
+    <div class="hero">
+      <div class="hero-text">
+        <h1>
+          <span class="line"><span>Pro sports</span></span>
+          <span class="line"><span>rights protection</span></span>
+        </h1>
+        <p class="sub hero-anim">Purpose-built tech and deep human expertise to protect<br>content, ensure compliance, and stop abuse.</p>
+      </div>
+      <span class="btn-wrap hero-anim">
+        <a class="cta" href="#contact">Contact us</a>
+        <span class="btn-tick tl" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M10 1.17281C5.36491 1.68522 1.68475 5.36498 1.17234 10H0V0H10V1.17281Z" fill="#F22857"/></svg></span>
+        <span class="btn-tick br" aria-hidden="true"><svg viewBox="0 0 10 10"><path d="M10 1.17281C5.36491 1.68522 1.68475 5.36498 1.17234 10H0V0H10V1.17281Z" fill="#F22857"/></svg></span>
+      </span>
+    </div>
+  </div>
+
+  <nav class="legal" aria-label="Legal">
+    <a href="#imprint">Imprint</a>
+    <a href="#privacy">Privacy</a>
+  </nav>
+
+  <button class="replay" type="button">↻ Replay</button>
+</main>
+
+<script>
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const symbol = $('.symbol');
+  const logo = $('.logo');
+  const inner = $('.logo-inner');
+  const sigC = $('.sig-c'), sigL = $('.sig-l'), sigR = $('.sig-r');
+  const left = $('.word-left');
+  const right = $('.word-right');
+  const lines = [...document.querySelectorAll('h1 .line > span')];
+  const sub = $('.sub');
+  const cta = $('.btn-wrap');
+  const legal = $('.legal');
+  const replayBtn = $('.replay');
+
+  // Easings
+  const EXPO = 'cubic-bezier(0.87, 0, 0.13, 1)';   // big scale moves
+  const OUT  = 'cubic-bezier(0.16, 1, 0.3, 1)';    // reveals
+  const INOUT = 'cubic-bezier(0.65, 0, 0.35, 1)';
+
+
+  // Symbol sizes per keyframe, in design px (1440×900 frame)
+  const SYMBOL_START = 72;   // frame 1 — same size as the mark
+
+  let anims = [];
+  const play = (el, kf, opts) => {
+    const a = el.animate(kf, { fill: 'both', ...opts });
+    anims.push(a);
+    return a;
+  };
+
+  function run() {
+    anims.forEach(a => a.cancel());
+    anims = [];
+    replayBtn.classList.remove('show');
+    document.documentElement.classList.remove('js');
+
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const finalW = symbol.getBoundingClientRect().width; // CSS state = final size
+    const sStart = SYMBOL_START / finalW;
+    const base = 'translate(-50%, -50%) ';
+
+    // How far the logo must drop so it sits in the viewport centre before the hero arrives
+    const stackRect = $('.stack').getBoundingClientRect();
+    const logoRect = logo.getBoundingClientRect();
+    const centreY = stackRect.top + stackRect.height / 2;
+    const dropY = centreY - (logoRect.top + logoRect.height / 2);
+
+    if (reduce) {
+      [legal, sub, cta].forEach(el => play(el, [{ opacity: 0 }, { opacity: 1 }], { duration: 400 }));
+      replayBtn.classList.add('show');
+      return;
+    }
+
+    // Timeline (ms) — every phase starts while the previous one is still settling
+    const GLIDE = 'cubic-bezier(0.7, 0, 0.2, 1)';   // soft start, long settle
+    const LIFT  = 'cubic-bezier(0.5, 0, 0.1, 1)';   // quicker start so the logo clears the text sooner
+    const T = { full: 1400 };                        // background: small → full screen
+    T.sigC  = 1050;            // logo starts as the background is settling (~75%)
+    T.sides = T.sigC + 250;    // signet sides
+    T.words = T.sigC + 500;    // Athletia / Core
+    T.lift  = T.sigC + 1050;   // as the words settle, the logo lifts…
+    T.text  = T.lift + 300;    // …and the text follows right behind it, never overlapping
+
+    play(legal, [{ opacity: 0 }, { opacity: 1 }], { duration: 900, delay: 200, easing: 'ease-out' });
+
+    // Background symbol: fades in while it grows, one continuous scale
+    play(symbol, [
+      { transform: base + `scale(${sStart})` },
+      { transform: base + 'scale(1)' }
+    ], { duration: T.full, easing: GLIDE });
+    play(symbol, [{ opacity: 0 }, { opacity: 1 }], { duration: 300, easing: 'ease-out' });
+
+    // Logo builds outward from the centre (Concept 2)
+    play(sigC, [
+      { opacity: 0, transform: 'scale(0.5)' },
+      { opacity: 1, transform: 'none' }
+    ], { duration: 800, delay: T.sigC, easing: OUT });
+    play(sigL, [{ transform: 'translateX(19.5px)' }, { transform: 'none' }], { duration: 900, delay: T.sides, easing: OUT });
+    play(sigR, [{ transform: 'translateX(-19.5px)' }, { transform: 'none' }], { duration: 900, delay: T.sides, easing: OUT });
+    play(left,  [{ transform: 'translateX(145px)' }, { transform: 'none' }], { duration: 1100, delay: T.words, easing: OUT });
+    play(right, [{ transform: 'translateX(-97px)' }, { transform: 'none' }], { duration: 1100, delay: T.words, easing: OUT });
+
+    // Frame 4 → 5 — logo lifts, headline + copy + CTA come in
+    play(logo, [
+      { transform: `translateY(${dropY}px)` },
+      { transform: 'translateY(0px)' }
+    ], { duration: 1000, delay: T.lift, easing: LIFT });
+    lines.forEach((l, i) => play(l, [
+      { transform: 'translateY(135%)' },
+      { transform: 'translateY(0%)' }
+    ], { duration: 1000, delay: T.text + i * 80, easing: OUT }));
+    [sub, cta].forEach((el, i) => play(el, [
+      { opacity: 0, transform: 'translateY(16px)' },
+      { opacity: 1, transform: 'translateY(0px)' }
+    ], { duration: 900, delay: T.text + 250 + i * 100, easing: OUT }));
+
+    Promise.all(anims.map(a => a.finished)).then(() => replayBtn.classList.add('show')).catch(() => {});
+  }
+
+  replayBtn.addEventListener('click', run);
+  addEventListener('keydown', (e) => { if (e.key === 'r' && !e.metaKey && !e.ctrlKey) run(); });
+
+  // Keep the symbol correctly sized if the window changes after the intro
+  addEventListener('resize', () => {
+    if (replayBtn.classList.contains('show')) {
+      anims.forEach(a => a.cancel()); anims = [];
+      replayBtn.classList.add('show');
+    }
+  });
+
+  const start = () => requestAnimationFrame(() => requestAnimationFrame(run));
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(start);
+})();
+</script>
+<script src="/switcher.js" defer></script>
+</body>
+</html>

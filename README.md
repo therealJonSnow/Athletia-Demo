@@ -6,7 +6,7 @@ Single-page site concepts for the Athletia Core client preview. Plain static HTM
 |-------|---------|
 | `/`   | Redirects to `/1/` |
 | `/1/` | Concept 1 (navy stage, pink band) |
-| `/2/` | Coming soon |
+| `/2/` | Concept 2 (growing signet background, white headline) |
 | `/3/` | Coming soon |
 
 ## Concept switcher
